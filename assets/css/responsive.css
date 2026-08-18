@@ -1,0 +1,65 @@
+/* ==========================================================================
+   MiST Unisex Salon — Responsive Overrides
+   Breakpoints tested: 1440 / 1200 / 992 / 768 / 576 / 375 / 320
+   ========================================================================== */
+
+/* ----- 1200px and below ----- */
+@media (max-width: 1200px){
+  .container-xl-custom{padding-left:20px;padding-right:20px;}
+  .mist-navbar .nav-links{gap:1.5rem;}
+}
+
+/* ----- 991.98px and below (tablet) ----- */
+@media (max-width: 991.98px){
+  .hero-content{max-width:90%;}
+  .split-section .row{flex-direction:column-reverse;}
+  .split-section.img-right .row{flex-direction:column;}
+  .masonry-grid{column-count:3;}
+  .location-card{margin-bottom:2rem;}
+}
+
+/* ----- 767.98px and below (mobile) ----- */
+@media (max-width: 767.98px){
+  section{padding:3.4rem 0;}
+  .section-head{margin-bottom:2.2rem;}
+  .hero{min-height:580px;}
+  .hero-content{padding-top:60px;}
+  .hero-actions{flex-direction:column;align-items:flex-start;width:100%;}
+  .hero-actions .btn-mist{width:100%;justify-content:center;}
+  .page-hero{min-height:44vh;padding-top:100px;}
+  .why-item{padding:1.6rem 0;}
+  .insta-grid{gap:8px;}
+  .num-block{margin-bottom:1.6rem;}
+  .step-row{padding:1.4rem 0;flex-direction:column;gap:.5rem;}
+  .step-row .step-num{min-width:auto;}
+  .location-row{align-items:flex-start;}
+  .footer-bottom{flex-direction:column;text-align:center;}
+  .mist-footer{padding-top:3.6rem;}
+}
+
+/* ----- 575.98px and below ----- */
+@media (max-width: 575.98px){
+  .container-xl-custom{padding-left:16px;padding-right:16px;}
+  .hero-title{font-size:2.5rem;}
+  .section-title{font-size:1.9rem;}
+  .masonry-grid{column-count:2;}
+  .filter-bar{gap:.45rem;}
+  .filter-btn{padding:.55rem 1rem;font-size:.68rem;}
+  .btn-mist{padding:.95rem 1.6rem;font-size:.72rem;width:100%;}
+  .hero-actions{gap:.8rem;}
+  .review-card,.offer-card,.blog-card{padding:0;}
+  .mist-mobile-menu{padding:22px 20px 32px;}
+  .mist-mobile-menu .mm-links a{font-size:1.4rem;}
+}
+
+/* ----- 375px / 320px small phones ----- */
+@media (max-width: 400px){
+  .hero-title{font-size:2.1rem;}
+  .eyebrow{font-size:.7rem;}
+  .location-card{padding:1.5rem;}
+  .review-card{padding:1.6rem 1.4rem;}
+}
+
+/* Prevent any horizontal overflow */
+html,body{max-width:100%;overflow-x:hidden;}
+img,video,iframe{max-width:100%;}
