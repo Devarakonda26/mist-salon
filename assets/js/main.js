@@ -28,7 +28,7 @@
       facebook: "https://www.facebook.com/mistsalon",
       twitter: "https://twitter.com/mistsalon",
       youtube: "",
-      whatsapp: ""
+      whatsapp: "+919257199299"
     }
   };
 
@@ -266,7 +266,11 @@
   }
 
   /* ------------------------------------------------------------------
-     9. FORM VALIDATION + SUCCESS MESSAGE (frontend only)
+     9. FORM VALIDATION + WHATSAPP HANDOFF
+     On submit, the form's fields are collected into a readable message
+     and sent to MiST's WhatsApp number via a wa.me link (opens WhatsApp
+     Web or the app with the message pre-filled, ready to send). The
+     on-page success message then confirms this to the user.
   ------------------------------------------------------------------ */
   function initForms() {
     document.querySelectorAll(".mist-form").forEach(function (form) {
@@ -279,6 +283,25 @@
           return;
         }
         form.classList.add("was-validated");
+
+        // Build a readable message from every labelled field in the form.
+        var lines = [];
+        form.querySelectorAll("input, select, textarea").forEach(function (field) {
+          if (!field.id || !field.value) return;
+          var label = form.querySelector('label[for="' + field.id + '"]');
+          var labelText = label ? label.textContent.trim() : field.id;
+          lines.push(labelText + ": " + field.value);
+        });
+        var heading = form.closest("section") && form.querySelector('button[type="submit"]').textContent.trim() === "Book Appointment"
+          ? "New appointment request from the MiST website:"
+          : "New enquiry from the MiST website:";
+        var messageText = heading + "\n\n" + lines.join("\n");
+        var whatsappNumber = (window.mistConfig.social.whatsapp || "").replace(/\D/g, "");
+        if (whatsappNumber) {
+          var waUrl = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(messageText);
+          window.open(waUrl, "_blank", "noopener,noreferrer");
+        }
+
         var success = form.parentElement.querySelector(".form-success") || form.querySelector(".form-success");
         form.style.display = "none";
         if (success) {
@@ -286,9 +309,6 @@
           success.setAttribute("role", "status");
           success.focus();
         }
-        // NOTE: This is a frontend-only success state. To go live, connect
-        // this submit handler to WhatsApp (wa.me link with prefilled text),
-        // a form backend (e.g. Formspree), or an email/booking service.
       });
     });
   }
