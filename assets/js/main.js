@@ -55,14 +55,6 @@
       }
       el.removeAttribute("hidden");
     });
-
-    // Mobile sticky CTA: hide WhatsApp button if not configured, expand Book button
-    var mscWhatsapp = document.querySelector(".msc-whatsapp");
-    var mscBook = document.querySelector(".msc-book");
-    if (mscWhatsapp && !socialLinks.whatsapp) {
-      mscWhatsapp.style.display = "none";
-      if (mscBook) mscBook.style.flex = "1 1 100%";
-    }
   }
 
   /* ------------------------------------------------------------------
