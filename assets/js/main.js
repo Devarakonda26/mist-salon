@@ -356,6 +356,296 @@
   }
 
   /* ------------------------------------------------------------------
+     9b. BOOKING FORM: GENDER -> CATEGORY -> SERVICE CASCADE
+     The booking form asks for Gender first, then narrows the Service
+     Category options to what that gender books at MiST, then narrows
+     Service to what belongs in the chosen category. Edit
+     window.mistConfig.bookingServices below to change which services
+     appear for which gender/category, the whole form reads from it.
+  ------------------------------------------------------------------ */
+  window.mistConfig.bookingServices = {
+    Male: {
+      "Hair": ["Haircut", "Kids Haircut", "Hair Styling", "Hair Wash & Blow-Dry", "Hair Colour", "Global Hair Colour", "Hair Straightening", "Hair Smoothening", "Dandruff Treatment", "Hair Patches", "Keratin & Neoplex", "Davines Hair Spa"],
+      "Skin": ["Classic Facial", "De-Tan Cleanup", "HydraFacial", "Skin Polishing", "Chemical Peels", "Acne Care Facial", "Pigmentation Care", "Anti-Aging Facial", "Skin Rejuvenation", "Kansa Thali", "Aroma Therapy"],
+      "Makeup": ["Groom Makeup"],
+      "Cosmetic Treatments": ["PRP / GFC", "Body Contouring", "Scalp Micropigmentation", "Ear Piercing"]
+    },
+    Female: {
+      "Hair": ["Haircut", "Kids Haircut", "Hair Styling", "Hair Wash & Blow-Dry", "Hair Colour", "Global Hair Colour", "Highlights", "Balayage & Ombré", "Hair Straightening", "Hair Smoothening", "Dandruff Treatment", "Hair Extensions", "Nano Hair Extensions", "Keratin & Neoplex", "Davines Hair Spa"],
+      "Skin & Facials": ["Classic Facial", "De-Tan Cleanup", "HydraFacial", "Skin Polishing", "Chemical Peels", "Acne Care Facial", "Pigmentation Care", "Anti-Aging Facial", "Skin Rejuvenation"],
+      "Makeup": ["Party Makeup", "Basic Makeup"],
+      "Wedding": ["Bridal Makeup", "Engagement Makeup", "Reception Makeup", "Makeup Trial", "Mehendi", "Bridal Hair Styling"],
+      "Nails": ["Manicure", "Pedicure", "Gel Polish", "Nail Extensions", "Nail Art", "Crystal Glam / Ice Cream", "Paraffin Spa"],
+      "Lashes & Brows": ["Eyelash Extensions", "Eyelash Tinting", "Eyebrow Shaping", "Painless Threading"],
+      "Permanent Makeup": ["Microblading", "Ombré Brows", "Permanent Eyeliner", "Lip Blush"],
+      "Hair & Scalp Solutions": ["Scalp Micropigmentation"],
+      "Clinical Treatments": ["Body Contouring", "PRP / GFC"],
+      "Special Services": ["Aroma Therapy", "Kansa Thali", "Ear Piercing"]
+    }
+  };
+
+  function initBookingCascade() {
+    var genderSelect = document.getElementById("b-gender");
+    var categorySelect = document.getElementById("b-category");
+    var serviceSelect = document.getElementById("b-service");
+    if (!genderSelect || !categorySelect || !serviceSelect) return;
+
+    var servicesByGender = window.mistConfig.bookingServices;
+
+    function resetSelect(select, placeholderText, disabled) {
+      select.innerHTML = "";
+      var placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.selected = true;
+      placeholder.disabled = true;
+      placeholder.textContent = placeholderText;
+      select.appendChild(placeholder);
+      select.disabled = disabled;
+    }
+
+    function populateCategories() {
+      var gender = genderSelect.value;
+      var categories = gender ? Object.keys(servicesByGender[gender] || {}) : [];
+      resetSelect(categorySelect, gender ? "Select a category" : "Select gender first", !gender);
+      categories.forEach(function (cat) {
+        var opt = document.createElement("option");
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+      resetSelect(serviceSelect, "Select a category first", true);
+    }
+
+    function populateServices() {
+      var gender = genderSelect.value;
+      var category = categorySelect.value;
+      var services = (gender && category && servicesByGender[gender]) ? (servicesByGender[gender][category] || []) : [];
+      resetSelect(serviceSelect, category ? "Select a service" : "Select a category first", !category);
+      services.forEach(function (name) {
+        var opt = document.createElement("option");
+        opt.textContent = name;
+        serviceSelect.appendChild(opt);
+      });
+      if (category) {
+        var other = document.createElement("option");
+        other.textContent = "Other / Not Sure";
+        serviceSelect.appendChild(other);
+      }
+    }
+
+    genderSelect.addEventListener("change", function () {
+      populateCategories();
+    });
+    categorySelect.addEventListener("change", function () {
+      populateServices();
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     9c. HOMEPAGE BOOK APPOINTMENT POPUP
+     Shown once per browser session on the homepage, a short delay
+     after load. Gender -> Service reuses the same
+     window.mistConfig.bookingServices data as the booking page (just
+     the category names, not the full per-category service list), and
+     submission goes through the same .mist-form / initForms() flow,
+     so it opens WhatsApp exactly like the main booking form does.
+  ------------------------------------------------------------------ */
+  function initBookingPopup() {
+    var popup = document.getElementById("mist-booking-popup");
+    if (!popup) return;
+
+    var closeBtn = popup.querySelector(".popup-close");
+    var genderSelect = document.getElementById("pb-gender");
+    var serviceSelect = document.getElementById("pb-service");
+    var SESSION_KEY = "mistBookingPopupShown";
+
+    function populateServiceCategories() {
+      var gender = genderSelect.value;
+      var servicesByGender = (window.mistConfig && window.mistConfig.bookingServices) || {};
+      var categories = gender && servicesByGender[gender] ? Object.keys(servicesByGender[gender]) : [];
+
+      serviceSelect.innerHTML = "";
+      var placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.selected = true;
+      placeholder.disabled = true;
+      placeholder.textContent = gender ? "Select a service" : "Select gender first";
+      serviceSelect.appendChild(placeholder);
+      categories.forEach(function (cat) {
+        var opt = document.createElement("option");
+        opt.textContent = cat;
+        serviceSelect.appendChild(opt);
+      });
+      serviceSelect.disabled = !gender;
+    }
+
+    if (genderSelect && serviceSelect) {
+      genderSelect.addEventListener("change", populateServiceCategories);
+    }
+
+    function openPopup() {
+      popup.classList.add("open");
+      popup.setAttribute("aria-hidden", "false");
+      document.body.classList.add("popup-open");
+      var firstField = document.getElementById("pb-name");
+      if (firstField) firstField.focus();
+    }
+
+    function closePopup() {
+      popup.classList.remove("open");
+      popup.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("popup-open");
+    }
+
+    if (closeBtn) closeBtn.addEventListener("click", closePopup);
+    popup.addEventListener("click", function (e) {
+      if (e.target === popup) closePopup();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && popup.classList.contains("open")) closePopup();
+    });
+
+    var alreadyShown = false;
+    try {
+      alreadyShown = !!sessionStorage.getItem(SESSION_KEY);
+    } catch (e) {
+      alreadyShown = false; // sessionStorage unavailable (private browsing, etc.) - show once anyway
+    }
+
+    if (!alreadyShown) {
+      setTimeout(function () {
+        openPopup();
+        try { sessionStorage.setItem(SESSION_KEY, "1"); } catch (e) { /* ignore */ }
+      }, 1000);
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     9d. INSTAGRAM EMBED RETRY
+     Instagram's own embed.js converts each <blockquote class="instagram-media">
+     into a playable iframe by fetching that post from Instagram’s
+     servers. It only tries once, when the script itself finishes
+     loading, so if any single reel's fetch is slow or briefly
+     rate-limited, that one is left showing the bare "View this reel
+     on Instagram" fallback link forever. Re-running Embeds.process()
+     a few more times catches any stragglers still left in the DOM
+     (a processed blockquote is replaced by an iframe, so once none
+     remain there is nothing left to retry).
+  ------------------------------------------------------------------ */
+  function initInstagramEmbedRetry() {
+    if (!document.querySelector("blockquote.instagram-media")) return;
+
+    function retry() {
+      if (!document.querySelector("blockquote.instagram-media")) return;
+      if (window.instgrm && window.instgrm.Embeds) {
+        window.instgrm.Embeds.process();
+      }
+    }
+
+    [1500, 3500, 6000, 10000].forEach(function (delay) {
+      setTimeout(retry, delay);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     9e. FLOATING CALL + WHATSAPP BUTTONS
+     Two fixed icon buttons, stacked bottom-right, on every page.
+     Hovering either shows a "Book Now via ..." tooltip without any
+     click. The WhatsApp one is a direct link (only one number to go
+     to). The Call one, since there are two MiST numbers, opens a
+     small panel on click so the visitor can choose which to dial.
+     Injected here (not hand-added to every HTML file) so both show
+     up site-wide automatically. Skipped on Contact and Book
+     Appointment, since both already lead with call/contact info.
+  ------------------------------------------------------------------ */
+  function initFloatingCTAs() {
+    var basename = window.location.pathname.split("/").pop().toLowerCase();
+    if (basename === "contact.html" || basename === "book-appointment.html") return;
+
+    var business = window.mistConfig.business;
+    var whatsappNumber = (socialLinks.whatsapp || "").replace(/\D/g, "");
+    if ((!business || !business.phone1Tel) && !whatsappNumber) return;
+
+    var container = document.createElement("div");
+    container.className = "mist-floating-cta";
+    container.id = "mist-floating-cta";
+
+    // --- Call button (opens a panel to choose between the two numbers) ---
+    if (business && business.phone1Tel) {
+      var callWrap = document.createElement("div");
+      callWrap.className = "call-fab-wrap";
+      callWrap.id = "mist-call-fab";
+
+      var panel = document.createElement("div");
+      panel.className = "call-fab-panel";
+      panel.setAttribute("role", "menu");
+
+      var label = document.createElement("span");
+      label.className = "call-fab-label";
+      label.textContent = "Choose a number to call";
+      panel.appendChild(label);
+
+      [
+        [business.phone1, business.phone1Tel],
+        [business.phone2, business.phone2Tel]
+      ].forEach(function (pair) {
+        var display = pair[0], telValue = pair[1];
+        if (!telValue) return;
+        var link = document.createElement("a");
+        link.className = "call-fab-link";
+        link.href = "tel:" + telValue;
+        link.innerHTML = '<i class="bi bi-telephone-fill"></i>' + display;
+        panel.appendChild(link);
+      });
+
+      var callBtn = document.createElement("button");
+      callBtn.type = "button";
+      callBtn.className = "fab-btn call-fab-btn";
+      callBtn.setAttribute("aria-label", "Book now via call");
+      callBtn.setAttribute("aria-expanded", "false");
+      callBtn.innerHTML = '<i class="bi bi-telephone-fill"></i><span class="fab-tooltip">Book Now via Call</span>';
+
+      callWrap.appendChild(panel);
+      callWrap.appendChild(callBtn);
+      container.appendChild(callWrap);
+
+      callBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var isOpen = callWrap.classList.toggle("open");
+        callBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+
+      document.addEventListener("click", function (e) {
+        if (!callWrap.contains(e.target)) {
+          callWrap.classList.remove("open");
+          callBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          callWrap.classList.remove("open");
+          callBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+
+    // --- WhatsApp button (single number, so it's a direct link) ---
+    if (whatsappNumber) {
+      var waMsg = encodeURIComponent("Hi MiST! I'd like to book an appointment.");
+      var waLink = document.createElement("a");
+      waLink.className = "fab-btn whatsapp-fab-btn";
+      waLink.href = "https://wa.me/" + whatsappNumber + "?text=" + waMsg;
+      waLink.target = "_blank";
+      waLink.rel = "noopener noreferrer";
+      waLink.setAttribute("aria-label", "Book now via WhatsApp");
+      waLink.innerHTML = '<i class="bi bi-whatsapp"></i><span class="fab-tooltip">Book Now via WhatsApp</span>';
+      container.appendChild(waLink);
+    }
+
+    document.body.appendChild(container);
+  }
+
+  /* ------------------------------------------------------------------
      10. ACTIVE NAV LINK
   ------------------------------------------------------------------ */
   function markActiveNav() {
@@ -380,6 +670,10 @@
     initLightbox();
     initBeforeAfter();
     initForms();
+    initBookingCascade();
+    initBookingPopup();
+    initInstagramEmbedRetry();
+    initFloatingCTAs();
     initImageFallbacks();
     markActiveNav();
   });
