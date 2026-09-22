@@ -219,7 +219,7 @@ section{padding:6.5rem 0;}
 }
 .mist-mobile-menu .mm-social{display:flex;gap:1.3rem;margin-bottom:2rem;}
 .mist-mobile-menu .mm-social a{font-size:1.3rem;color:var(--ivory);}
-.mist-mobile-menu .mm-cta{margin-top:auto;}
+.mist-mobile-menu .mm-cta{margin-top:auto;display:flex;flex-direction:column;gap:.75rem;}
 body.menu-open{overflow:hidden;}
 
 /* ---------- Hero ---------- */
