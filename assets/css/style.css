@@ -221,7 +221,7 @@ section{padding:6.5rem 0;}
 .mist-mobile-menu .mm-social a{font-size:1.1rem;color:var(--ivory);}
 .mist-mobile-menu .mm-cta{margin-top:auto;display:flex;flex-direction:column;gap:.5rem;flex:0 0 auto;}
 .mist-mobile-menu .mm-cta .btn-mist{padding:.7rem 1.5rem;font-size:.74rem;}
-body.menu-open{overflow:hidden;}
+body.menu-open{overflow:hidden;position:fixed;width:100%;}
 
 /* ---------- Hero ---------- */
 .hero{

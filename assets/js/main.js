@@ -83,14 +83,33 @@
     var closeBtn = document.querySelector(".mm-close");
     if (!toggle || !menu) return;
 
+    // Plain `overflow:hidden` on <body> does not reliably block
+    // touch/rubber-band scrolling behind a full-screen menu on iOS
+    // Safari. Pinning the body in place with position:fixed (and
+    // restoring the exact scroll position on close) is the pattern
+    // that actually holds the background still on every browser.
+    var lockedScrollY = 0;
+
+    function lockScroll() {
+      lockedScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.classList.add("menu-open");
+      document.body.style.top = "-" + lockedScrollY + "px";
+    }
+
+    function unlockScroll() {
+      document.body.classList.remove("menu-open");
+      document.body.style.top = "";
+      window.scrollTo(0, lockedScrollY);
+    }
+
     function open() {
       menu.classList.add("open");
-      document.body.classList.add("menu-open");
+      lockScroll();
       toggle.setAttribute("aria-expanded", "true");
     }
     function close() {
       menu.classList.remove("open");
-      document.body.classList.remove("menu-open");
+      unlockScroll();
       toggle.setAttribute("aria-expanded", "false");
     }
     toggle.addEventListener("click", open);
