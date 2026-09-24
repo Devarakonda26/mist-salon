@@ -21,7 +21,8 @@
       phone1Tel: "+919257199299",
       phone2: "+91 96668 71724",
       phone2Tel: "+919666871724",
-      hours: "Open Daily · 9:00 AM – 9:00 PM"
+      hours: "Open Daily · 9:00 AM – 9:00 PM",
+      googleMaps: "https://www.google.com/maps/search/?api=1&query=MiST%20Unisex%20Salon%2C%20G.G.H.%20Road%2C%20Budhwarpet%2C%20Kurnool%2C%20Andhra%20Pradesh%20518002"
     },
     social: {
       instagram: "https://www.instagram.com/mistsalonkurnool/",
@@ -588,6 +589,18 @@
     container.className = "mist-floating-cta";
     container.id = "mist-floating-cta";
 
+    // --- Map button (opens Google Maps directions) — placed above call & WhatsApp ---
+    if (business && business.googleMaps) {
+      var mapLink = document.createElement("a");
+      mapLink.className = "fab-btn map-fab-btn";
+      mapLink.href = business.googleMaps;
+      mapLink.target = "_blank";
+      mapLink.rel = "noopener noreferrer";
+      mapLink.setAttribute("aria-label", "View location on map");
+      mapLink.innerHTML = '<i class="bi bi-geo-alt-fill"></i><span class="fab-tooltip">View on Map</span>';
+      container.appendChild(mapLink);
+    }
+
     // --- Call button (opens a panel to choose between the two numbers) ---
     if (business && business.phone1Tel) {
       var callWrap = document.createElement("div");
@@ -662,6 +675,15 @@
     }
 
     document.body.appendChild(container);
+
+    // Auto-show the tooltips briefly on page load (no hover needed) so first-time
+    // visitors notice the buttons, then fall back to normal hover-only behaviour.
+    setTimeout(function () {
+      container.classList.add("attract");
+      setTimeout(function () {
+        container.classList.remove("attract");
+      }, 3500);
+    }, 700);
   }
 
   /* ------------------------------------------------------------------
