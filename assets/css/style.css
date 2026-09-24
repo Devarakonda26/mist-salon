@@ -411,7 +411,7 @@ body.menu-open{overflow:hidden;}
 .insta-reel-embed{overflow:hidden;border-radius:12px;background:var(--ivory,#f7f1ec);display:flex;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.08);}
 .insta-reel-embed iframe,.insta-reel-embed .instagram-media{margin:0 !important;width:100% !important;min-width:0 !important;max-width:100% !important;border-radius:12px !important;}
 @media (max-width:992px){.insta-reel-grid{grid-template-columns:repeat(2,1fr);}}
-@media (max-width:576px){.insta-reel-grid{grid-template-columns:repeat(1,1fr);max-width:380px;}}
+@media (max-width:576px){.insta-reel-grid{grid-template-columns:repeat(2,1fr) !important;gap:12px;max-width:100%;}}
 
 /* Floating Call Button (every page except Contact and Book Appointment) */
 .mist-floating-cta{position:fixed;right:22px;bottom:22px;z-index:1100;display:flex;flex-direction:column;align-items:flex-end;gap:.85rem;}
